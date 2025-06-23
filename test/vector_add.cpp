@@ -1,5 +1,7 @@
 #include "vector_add.h"
 #include "device_buffer.h"
+
+#include "common.h"
 #include "prng.h"
 #include "test_config.h"
 
@@ -32,5 +34,5 @@ TYPED_TEST(VectorAddTest, BasicCheck)
     dev_c.load_to(c.data());
 
     for (int i = 0; i < size; ++i)
-        ASSERT_EQ(c[i], a[i] + b[i]);
+        ASSERT_NUM_EQUAL(c[i], a[i] + b[i]);
 }

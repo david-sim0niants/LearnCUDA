@@ -12,6 +12,7 @@ FetchContent_MakeAvailable(googletest)
 set(SRCS
     test_config.cpp
     vector_add.cpp
+    matmul.cpp
 )
 
 set(TARGET_NAME run_tests)

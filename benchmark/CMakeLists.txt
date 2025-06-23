@@ -3,6 +3,7 @@ find_package(benchmark REQUIRED)
 set(TARGET_NAME run_bms)
 set(SRCS
     vector_add.cpp
+    matmul.cpp
 )
 
 add_executable(${TARGET_NAME} ${SRCS})

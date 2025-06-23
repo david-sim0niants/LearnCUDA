@@ -5,7 +5,7 @@
 #include <cuda_runtime.h>
 
 template<typename T>
-static void bm_vector_add(benchmark::State& state)
+void bm_vector_add(benchmark::State& state)
 {
     const std::size_t size = state.range(0);
 
@@ -18,9 +18,6 @@ static void bm_vector_add(benchmark::State& state)
     {
         add_vectors(dev_a.data(), dev_b.data(), dev_c.data(), size);
     }
-
-    std::vector<T> c(size);
-    dev_c.load_to(c.data());
 }
 
 BENCHMARK_TEMPLATE(bm_vector_add, int)->RangeMultiplier(2)->Range(1 << 10, 1 << 24);

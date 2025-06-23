@@ -2,6 +2,7 @@ set(TARGET_NAME learncuda_src)
 
 set(SRCS
     vector_add.cu
+    matmul.cu
 )
 
 add_library(${TARGET_NAME} INTERFACE)

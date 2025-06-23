@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cuda_error.h"
+#include "error.h"
 
 #include <cstddef>
 
@@ -11,7 +11,7 @@ class DeviceBuffer {
 public:
     explicit DeviceBuffer(std::size_t size) : size_(size)
     {
-        cuda_assert(cudaMalloc(&data_, size * sizeof(T)));
+        assert_cuda_ok(cudaMalloc(&data_, mem_size()));
     }
 
     explicit DeviceBuffer(const T *host_data, std::size_t size) : DeviceBuffer(size)
@@ -58,22 +58,22 @@ public:
 
     void load_from(const T *host_data)
     {
-        cuda_assert(cudaMemcpy(data_, host_data, mem_size(), cudaMemcpyHostToDevice));
+        assert_cuda_ok(cudaMemcpy(data_, host_data, mem_size(), cudaMemcpyHostToDevice));
     }
 
     void load_to(T *host_data) const
     {
-        cuda_assert(cudaMemcpy(host_data, data_, mem_size(), cudaMemcpyDeviceToHost));
+        assert_cuda_ok(cudaMemcpy(host_data, data_, mem_size(), cudaMemcpyDeviceToHost));
     }
 
     void copy_from(const T *device_data)
     {
-        cuda_assert(cudaMemcpy(data_, device_data, mem_size(), cudaMemcpyDeviceToDevice));
+        assert_cuda_ok(cudaMemcpy(data_, device_data, mem_size(), cudaMemcpyDeviceToDevice));
     }
 
     void copy_to(T *device_data) const
     {
-        cuda_assert(cudaMemcpy(device_data, data_, mem_size(), cudaMemcpyDeviceToDevice));
+        assert_cuda_ok(cudaMemcpy(device_data, data_, mem_size(), cudaMemcpyDeviceToDevice));
     }
 
     inline T *data() noexcept
