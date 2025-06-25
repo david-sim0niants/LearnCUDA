@@ -15,7 +15,7 @@ protected:
     template<typename T>
     void do_basic_check()
     {
-        const auto [N, M, K] = GetParam();
+        const auto [N, K, M] = GetParam();
 
         std::vector<T> A (N * K), B(K * M), C(N * M, T{});
         auto range = T(std::sqrt(T(std::numeric_limits<T>::max()) / K));
@@ -58,7 +58,8 @@ TEST_P(MatmulTest, BasicCheck)
 
 INSTANTIATE_TEST_SUITE_P(PerMatrixSizes, MatmulTest,
         ::testing::Values(
-            TestArg{1000, 1000, 1000},
+            TestArg{4, 3, 4},
+            TestArg{10, 20, 30},
             TestArg{100, 300, 200},
-            TestArg{10, 20, 30})
-        );
+            TestArg{1000, 1000, 1000}
+        ));
