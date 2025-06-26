@@ -15,12 +15,16 @@ void bm_matmul(benchmark::State& state)
     const size_t K = state.range(1);
     const size_t M = state.range(2);
 
-    std::vector<T> A(N * K, T(1)), B(K * M, T(2));
-
-    DeviceBuffer<T> dev_A(A.data(), A.size()), dev_B(B.data(), B.size()), dev_C(N * M);
+    DeviceBuffer<T> dev_A(N * K), dev_B(K * M), dev_C(N * M);
+    cudaMemsetAsync(dev_A.data(), 1, dev_A.size());
+    cudaMemsetAsync(dev_B.data(), 2, dev_B.size());
+    cudaDeviceSynchronize();
 
     for (auto _ : state)
         matmul(dev_A.data(), dev_B.data(), dev_C.data(), N, K, M);
+
+    state.counters["FLOPS/sec"] = benchmark::Counter(N * K * M * 2, benchmark::Counter::kIsRate);
+    state.SetComplexityN(K);
 }
 
 template<typename T>
