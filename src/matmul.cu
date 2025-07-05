@@ -74,7 +74,6 @@ void Matmul<T>::matmul(
     matmul_tiled_kernel<<<grid_size, block_size>>>(dev_A, dev_B, dev_C, N, K, M,
                                                    A_stride, B_stride, C_stride);
     assert_cuda_ok();
-    cudaDeviceSynchronize();
 }
 
 template struct Matmul<int>;

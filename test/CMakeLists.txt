@@ -13,7 +13,10 @@ set(SRCS
     test_config.cpp
     vector_add.cpp
     matmul.cpp
+    conv2d.cpp
 )
+
+add_compile_options(--save-temps)
 
 set(TARGET_NAME run_tests)
 add_executable(${TARGET_NAME} ${SRCS})

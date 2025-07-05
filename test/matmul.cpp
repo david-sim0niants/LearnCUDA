@@ -30,6 +30,7 @@ protected:
                      dev_C(C.data(), C.size());
 
         matmul(dev_A.data(), dev_B.data(), dev_C.data(), N, K, M);
+        cudaDeviceSynchronize();
 
         dev_C.load_to(C.data());
 
