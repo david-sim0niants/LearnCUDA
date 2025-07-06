@@ -67,64 +67,69 @@ constexpr std::size_t get_channel_type_size(ChannelType channel)
     }
 }
 
-constexpr uint16_t make_pixel_type(ChannelType channel, uint8_t nr_channels)
+constexpr uint16_t make_pixel_type_val(ChannelType channel, uint8_t nr_channels)
 {
     return (uint16_t(channel) << 8) | uint16_t(nr_channels);
 }
 
 enum class PixelType : uint16_t {
-    NONE    = make_pixel_type(ChannelType::NONE, 0)
+    NONE    = make_pixel_type_val(ChannelType::NONE, 0)
 
-    , I8x1  = make_pixel_type(ChannelType::I8,  1)
-    , I16x1 = make_pixel_type(ChannelType::I16, 1)
-    , I32x1 = make_pixel_type(ChannelType::I32, 1)
-    , I64x1 = make_pixel_type(ChannelType::I64, 1)
+    , I8x1  = make_pixel_type_val(ChannelType::I8,  1)
+    , I16x1 = make_pixel_type_val(ChannelType::I16, 1)
+    , I32x1 = make_pixel_type_val(ChannelType::I32, 1)
+    , I64x1 = make_pixel_type_val(ChannelType::I64, 1)
 
-    , I8x2  = make_pixel_type(ChannelType::I8,  2)
-    , I16x2 = make_pixel_type(ChannelType::I16, 2)
-    , I32x2 = make_pixel_type(ChannelType::I32, 2)
-    , I64x2 = make_pixel_type(ChannelType::I64, 2)
+    , I8x2  = make_pixel_type_val(ChannelType::I8,  2)
+    , I16x2 = make_pixel_type_val(ChannelType::I16, 2)
+    , I32x2 = make_pixel_type_val(ChannelType::I32, 2)
+    , I64x2 = make_pixel_type_val(ChannelType::I64, 2)
 
-    , I8x3  = make_pixel_type(ChannelType::I8,  3)
-    , I16x3 = make_pixel_type(ChannelType::I16, 3)
-    , I32x3 = make_pixel_type(ChannelType::I32, 3)
-    , I64x3 = make_pixel_type(ChannelType::I64, 3)
+    , I8x3  = make_pixel_type_val(ChannelType::I8,  3)
+    , I16x3 = make_pixel_type_val(ChannelType::I16, 3)
+    , I32x3 = make_pixel_type_val(ChannelType::I32, 3)
+    , I64x3 = make_pixel_type_val(ChannelType::I64, 3)
 
-    , I8x4  = make_pixel_type(ChannelType::I8,  4)
-    , I16x4 = make_pixel_type(ChannelType::I16, 4)
-    , I32x4 = make_pixel_type(ChannelType::I32, 4)
-    , I64x4 = make_pixel_type(ChannelType::I64, 4)
+    , I8x4  = make_pixel_type_val(ChannelType::I8,  4)
+    , I16x4 = make_pixel_type_val(ChannelType::I16, 4)
+    , I32x4 = make_pixel_type_val(ChannelType::I32, 4)
+    , I64x4 = make_pixel_type_val(ChannelType::I64, 4)
 
-    , U8x1  = make_pixel_type(ChannelType::U8,  1)
-    , U16x1 = make_pixel_type(ChannelType::U16, 1)
-    , U32x1 = make_pixel_type(ChannelType::U32, 1)
-    , U64x1 = make_pixel_type(ChannelType::U64, 1)
+    , U8x1  = make_pixel_type_val(ChannelType::U8,  1)
+    , U16x1 = make_pixel_type_val(ChannelType::U16, 1)
+    , U32x1 = make_pixel_type_val(ChannelType::U32, 1)
+    , U64x1 = make_pixel_type_val(ChannelType::U64, 1)
 
-    , U8x2  = make_pixel_type(ChannelType::U8,  2)
-    , U16x2 = make_pixel_type(ChannelType::U16, 2)
-    , U32x2 = make_pixel_type(ChannelType::U32, 2)
-    , U64x2 = make_pixel_type(ChannelType::U64, 2)
+    , U8x2  = make_pixel_type_val(ChannelType::U8,  2)
+    , U16x2 = make_pixel_type_val(ChannelType::U16, 2)
+    , U32x2 = make_pixel_type_val(ChannelType::U32, 2)
+    , U64x2 = make_pixel_type_val(ChannelType::U64, 2)
 
-    , U8x3  = make_pixel_type(ChannelType::U8,  3)
-    , U16x3 = make_pixel_type(ChannelType::U16, 3)
-    , U32x3 = make_pixel_type(ChannelType::U32, 3)
-    , U64x3 = make_pixel_type(ChannelType::U64, 3)
+    , U8x3  = make_pixel_type_val(ChannelType::U8,  3)
+    , U16x3 = make_pixel_type_val(ChannelType::U16, 3)
+    , U32x3 = make_pixel_type_val(ChannelType::U32, 3)
+    , U64x3 = make_pixel_type_val(ChannelType::U64, 3)
 
-    , U8x4  = make_pixel_type(ChannelType::U8,  4)
-    , U16x4 = make_pixel_type(ChannelType::U16, 4)
-    , U32x4 = make_pixel_type(ChannelType::U32, 4)
-    , U64x4 = make_pixel_type(ChannelType::U64, 4)
+    , U8x4  = make_pixel_type_val(ChannelType::U8,  4)
+    , U16x4 = make_pixel_type_val(ChannelType::U16, 4)
+    , U32x4 = make_pixel_type_val(ChannelType::U32, 4)
+    , U64x4 = make_pixel_type_val(ChannelType::U64, 4)
 
-    , Fx1   = make_pixel_type(ChannelType::FLOAT, 1)
-    , Fx2   = make_pixel_type(ChannelType::FLOAT, 2)
-    , Fx3   = make_pixel_type(ChannelType::FLOAT, 3)
-    , Fx4   = make_pixel_type(ChannelType::FLOAT, 4)
+    , Fx1   = make_pixel_type_val(ChannelType::FLOAT, 1)
+    , Fx2   = make_pixel_type_val(ChannelType::FLOAT, 2)
+    , Fx3   = make_pixel_type_val(ChannelType::FLOAT, 3)
+    , Fx4   = make_pixel_type_val(ChannelType::FLOAT, 4)
 
-    , Dx1   = make_pixel_type(ChannelType::DOUBLE, 1)
-    , Dx2   = make_pixel_type(ChannelType::DOUBLE, 2)
-    , Dx3   = make_pixel_type(ChannelType::DOUBLE, 3)
-    , Dx4   = make_pixel_type(ChannelType::DOUBLE, 4)
+    , Dx1   = make_pixel_type_val(ChannelType::DOUBLE, 1)
+    , Dx2   = make_pixel_type_val(ChannelType::DOUBLE, 2)
+    , Dx3   = make_pixel_type_val(ChannelType::DOUBLE, 3)
+    , Dx4   = make_pixel_type_val(ChannelType::DOUBLE, 4)
 };
+
+constexpr PixelType make_pixel_type(ChannelType channel, uint8_t nr_channels)
+{
+    return PixelType(make_pixel_type_val(channel, nr_channels));
+}
 
 constexpr ChannelType get_channel_type(PixelType pixel_type)
 {

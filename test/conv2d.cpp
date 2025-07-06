@@ -1,13 +1,10 @@
 #include "conv2d.h"
-#include "common.h"
 #include "cuda_runtime_api.h"
 #include "host_texture2d.h"
 #include "device_texture2d.h"
-#include "pixel_type.h"
 #include "prng.h"
 #include "test_config.h"
 
-#include <error.h>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -39,7 +36,7 @@ protected:
     HostTexture2D gen_host_texture(size_t width, size_t height, unsigned int channels)
     {
         HostTexture2D host_image {
-            {width, height}, PixelType(make_pixel_type(ChannelType::FLOAT, channels))};
+            {width, height}, PixelType(make_pixel_type_val(ChannelType::FLOAT, channels))};
         for (size_t i = 0; i < host_image.mem_size(); ++i)
             host_image.view().data()[i] = std::byte(prng(0, 255));
         return host_image;
@@ -91,7 +88,7 @@ TEST_P(Conv2DTest, BasicCheck)
         .height = height,
         .input_pitch = texture.view().pitch(),
         .output_pitch = expected_texture.view().pitch(),
-        .pixel_type = PixelType(make_pixel_type(ChannelType::FLOAT, channels)),
+        .pixel_type = make_pixel_type(ChannelType::FLOAT, channels),
         .kernel_size = kernel_size,
     };
 
@@ -133,4 +130,3 @@ static const TestArg test_args[] = {
 };
 
 INSTANTIATE_TEST_SUITE_P(PerConv2DArgs, Conv2DTest, ::testing::ValuesIn(test_args));
-

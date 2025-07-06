@@ -11,30 +11,13 @@ static Texture2DView alloc_and_view(const Texture2DSize& size, PixelType pixel_t
 }
 
 DeviceTexture2D::DeviceTexture2D(const Texture2DSize& size, PixelType pixel_type)
-    : Texture2D(alloc_and_view(size, pixel_type), size, pixel_type)
+    : Texture2DMoveOnly(alloc_and_view(size, pixel_type), size, pixel_type)
 {
-}
-
-DeviceTexture2D::DeviceTexture2D(DeviceTexture2D&& other)
-{
-    swap(other);
-}
-
-DeviceTexture2D& DeviceTexture2D::operator=(DeviceTexture2D&& rhs)
-{
-    if (&rhs != this)
-        swap(rhs);
-    return *this;
 }
 
 DeviceTexture2D::~DeviceTexture2D()
 {
     cudaFree(view().data());
-}
-
-void DeviceTexture2D::swap(DeviceTexture2D& other)
-{
-    Texture2D::swap(other);
 }
 
 void DeviceTexture2D::upload(Texture2DReadOnlyView host_view)

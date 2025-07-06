@@ -23,9 +23,7 @@ inline Vec convolve_2d_cell(const Conv2DParams& params,
         const Vec* input, float* kernel, size_t i, size_t j)
 {
     Vec out {};
-    #pragma unroll
     for (unsigned k_i = 0; k_i < KH; ++k_i) {
-        #pragma unroll
         for (unsigned k_j = 0; k_j < KW; ++k_j) {
             if (KH > 1 && i + k_i < KH / 2 || KW > 1 && j + k_j < KW / 2)
                 continue;

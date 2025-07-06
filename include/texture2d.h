@@ -146,3 +146,63 @@ private:
     Texture2DSize size_ = {0, 0};
     PixelType pixel_type_ = PixelType::NONE;
 };
+
+class Texture2DMoveOnly : public Texture2D {
+public:
+    using Texture2D::Texture2D;
+    using Texture2D::swap;
+
+    Texture2DMoveOnly(const Texture2DMoveOnly&) = delete;
+    Texture2DMoveOnly& operator=(const Texture2DMoveOnly&) = delete;
+
+    Texture2DMoveOnly(Texture2DMoveOnly&& other) noexcept
+    {
+        swap(other);
+    }
+
+    Texture2DMoveOnly& operator=(Texture2DMoveOnly&& rhs) noexcept
+    {
+        swap(rhs);
+        return *this;
+    }
+};
+
+template<std::invocable<std::byte*> Deleter>
+class Texture2DWithDeleter : public Texture2DMoveOnly {
+public:
+    explicit Texture2DWithDeleter(Deleter&& deleter = {})
+        : Texture2DMoveOnly(), deleter(std::move(deleter))
+    {
+    }
+
+    Texture2DWithDeleter(const Texture2DView& view, const Texture2DSize& size,
+            PixelType pixel_type, Deleter&& deleter = Deleter())
+        : Texture2DMoveOnly(view, size, pixel_type), deleter(std::move(deleter))
+    {
+    }
+
+    Texture2DWithDeleter(Texture2DWithDeleter&& other)
+    {
+        swap(other);
+    }
+
+    Texture2DWithDeleter& operator=(Texture2DWithDeleter&& rhs)
+    {
+        swap(rhs);
+        return *this;
+    }
+
+    ~Texture2DWithDeleter()
+    {
+        deleter(view().data());
+    }
+
+    inline void swap(Texture2DWithDeleter& other)
+    {
+        Texture2DMoveOnly::swap(other);
+        std::swap(deleter, other.deleter);
+    }
+
+private:
+    Deleter deleter;
+};
