@@ -22,7 +22,7 @@ template<typename Vec, int KW, int KH>
 inline Vec convolve_2d_cell(const Conv2DParams& params,
         const Vec* input, float* kernel, size_t i, size_t j)
 {
-    Vec out {};
+    ::Vec<float, Vec::size()> out {};
     for (unsigned k_i = 0; k_i < KH; ++k_i) {
         for (unsigned k_j = 0; k_j < KW; ++k_j) {
             if (KH > 1 && i + k_i < KH / 2 || KW > 1 && j + k_j < KW / 2)
@@ -34,12 +34,13 @@ inline Vec convolve_2d_cell(const Conv2DParams& params,
             const size_t u = i + k_i - KH / 2;
             const size_t v = j + k_j - KW / 2;
 
-            const float k_f = kernel_at<KW>(kernel, k_i, k_j);
+            const auto in = at(input, params.input_pitch, u, v).as(float());
+            const float k = kernel_at<KW>(kernel, k_i, k_j);
 
-            out += at(input, params.input_pitch, u, v) * k_f;
+            out += in * k;
         }
     }
-    return out;
+    return out.as(typename Vec::Element());
 }
 
 template<typename Vec, int KW, int KH>

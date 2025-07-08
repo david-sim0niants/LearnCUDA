@@ -61,11 +61,11 @@ __global__ void convolve_2d_kernel(
     if (row >= height || col >= width)
         return;
 
-    Vec out = {};
+    ::Vec<float, Vec::size()> out = {};
     for (int i = 0; i < KH; ++i)
         for (int j = 0; j < KW; ++j)
-            out += input_sub[ty + i][tx + j] * kernel_at<KW>(i, j);
-    at(output, output_pitch, row, col) = out;
+            out += input_sub[ty + i][tx + j].as(float()) * kernel_at<KW>(i, j);
+    at(output, output_pitch, row, col) = out.as(typename Vec::Element());
 }
 
 template<typename Elem, unsigned int channels, int kernel_width, int kernel_height>

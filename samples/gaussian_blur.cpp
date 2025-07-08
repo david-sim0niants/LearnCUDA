@@ -1,9 +1,12 @@
 #include "conv2d.h"
 #include "imgio.h"
+#include "device_texture2d.h"
 
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+
+#include <cuda_runtime_api.h>
 
 void usage(const char* prog_name);
 
@@ -36,12 +39,39 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    Image& in_img = *in_img_opt;
+    Image& img = *in_img_opt;
 
     std::cout << "Loaded input image: ("
-        << in_img.size().width << ", " << in_img.size().height << ')' << std::endl;
+        << img.size().width << ", " << img.size().height << ')' << std::endl;
 
-    bool succeeded = save_image(in_img, out_f, { ImageFormat::PNG, 100 });
+    DeviceTexture2D dev_in_img (img.size(), img.pixel_type());
+    dev_in_img.upload(img.view());
+    cudaDeviceSynchronize();
+
+    DeviceTexture2D dev_out_img (dev_in_img.size(), dev_in_img.pixel_type());
+
+    Conv2DParams params = {
+        .width = dev_in_img.size().width,
+        .height = dev_in_img.size().height,
+        .input_pitch = dev_in_img.view().pitch(),
+        .output_pitch = dev_out_img.view().pitch(),
+        .pixel_type = dev_out_img.pixel_type(),
+        .kernel_size = Conv2DKernelSize::K_3x3,
+    };
+
+    float kernel[3 * 3] = {
+        1.f/16, 2.f/16, 1.f/16,
+        2.f/16, 4.f/16, 2.f/16,
+        1.f/16, 2.f/16, 1.f/16,
+    };
+
+    convolve_2d(params, dev_in_img.view().data(), kernel, dev_out_img.view().data());
+    cudaDeviceSynchronize();
+
+    dev_out_img.download(img.view());
+    cudaDeviceSynchronize();
+
+    bool succeeded = save_image(img, out_f, { ImageFormat::PNG, 100 });
     if (not succeeded) {
         std::cerr << "Error: failed saving output image\n";
         return EXIT_FAILURE;

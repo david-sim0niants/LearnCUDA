@@ -1,6 +1,8 @@
 #include "imgio.h"
+
 #include "stb_image.h"
 #include "stb_image_write.h"
+
 #include <stdexcept>
 
 namespace {
@@ -55,14 +57,12 @@ std::optional<Image> load_image(std::istream& is)
     return Image(view, Texture2DSize(width, height), make_pixel_type(ChannelType::U8, channels));
 }
 
-template<auto image_write, typename... OtherArgs>
-inline bool save_image_impl(const Texture2D& image, std::ostream& os,
-        OtherArgs&&... other_args)
+template<auto write_func, typename... OtherArgs>
+inline bool write_image(const Texture2D& image, std::ostream& os, OtherArgs&&... other_args)
 {
-    return
-        image_write(write, &os, image.size().width, image.size().height,
-                get_nr_channels(image.pixel_type()), image.view().data(),
-                std::forward<OtherArgs>(other_args)...);
+    return write_func(write, &os, image.size().width, image.size().height,
+                      get_nr_channels(image.pixel_type()), image.view().data(),
+                      std::forward<OtherArgs>(other_args)...);
 }
 
 bool save_image(const Texture2D& image, std::ostream& os, const ImageSaveParams& params)
@@ -72,13 +72,13 @@ bool save_image(const Texture2D& image, std::ostream& os, const ImageSaveParams&
     case RAW:
         return bool(os.write(reinterpret_cast<const char*>(image.view().data()), image.mem_size()));
     case BMP:
-        return save_image_impl<stbi_write_bmp_to_func>(image, os);
+        return write_image<stbi_write_bmp_to_func>(image, os);
     case PNG:
-        return save_image_impl<stbi_write_png_to_func>(image, os, image.view().pitch());
+        return write_image<stbi_write_png_to_func>(image, os, image.view().pitch());
     case JPG:
-        return save_image_impl<stbi_write_jpg_to_func>(image, os, params.quality);
+        return write_image<stbi_write_jpg_to_func>(image, os, params.quality);
     case TGA:
-        return save_image_impl<stbi_write_tga_to_func>(image, os);
+        return write_image<stbi_write_tga_to_func>(image, os);
     default:
         throw std::invalid_argument("invalid image format");
     };

@@ -66,6 +66,16 @@ struct Vec {
         return res;
     }
 
+    template<typename OtherElem = Elem, std::size_t other_size = size_>
+    CUDA_HD constexpr Vec<OtherElem, other_size> as(OtherElem = OtherElem()) const noexcept
+    {
+        Vec<OtherElem, other_size> other {};
+        constexpr std::size_t min_size = other_size < size_ ? other_size : size_;
+        for (std::size_t i = 0; i < min_size; ++i)
+            other[i] = (*this)[i];
+        return other;
+    }
+
     CUDA_HD constexpr Elem& operator[](std::size_t i) noexcept
     {
         return array[i];

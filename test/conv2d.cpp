@@ -37,8 +37,9 @@ protected:
     {
         HostTexture2D host_image {
             {width, height}, PixelType(make_pixel_type_val(ChannelType::FLOAT, channels))};
-        for (size_t i = 0; i < host_image.mem_size(); ++i)
-            host_image.view().data()[i] = std::byte(prng(0, 255));
+        for (size_t i = 0; i < host_image.size().height; ++i)
+            for (size_t j = 0; j < host_image.size().width * channels; ++j)
+                host_image.view().at<float>(i, j) = prng(0.0F, 1.0F);
         return host_image;
     }
 
@@ -58,7 +59,7 @@ protected:
     void test_textures(const HostTexture2D& expected, const HostTexture2D& actual)
     {
         for (size_t i = 0; i < actual.size().height; ++i) {
-            for (size_t j = 0; j < actual.size().width * nr_channels; ++j) {
+            for (size_t j = 0; j < actual.size().width; ++j) {
                 for (int c = 0; c < nr_channels; ++c) {
                     ASSERT_FLOAT_EQ(
                         (expected.view().at<float, nr_channels>(i, j, c)),
