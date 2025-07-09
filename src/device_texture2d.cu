@@ -1,5 +1,6 @@
 #include "device_texture2d.h"
 #include "error.h"
+#include "private/cuda_stream.h"
 
 static Texture2DView alloc_and_view(const Texture2DSize& size, PixelType pixel_type)
 {
@@ -26,7 +27,8 @@ void DeviceTexture2D::upload(Texture2DReadOnlyView host_view)
         cudaMemcpy2DAsync(
             view().data(), view().pitch(), host_view.data(), host_view.pitch(),
             size().width * get_pixel_type_size(pixel_type()), size().height,
-            cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice, current_cuda_stream())
+    );
 }
 
 void DeviceTexture2D::download(Texture2DView host_view) const
@@ -35,7 +37,8 @@ void DeviceTexture2D::download(Texture2DView host_view) const
         cudaMemcpy2DAsync(
             host_view.data(), host_view.pitch(), view().data(), view().pitch(),
             size().width * get_pixel_type_size(pixel_type()), size().height,
-            cudaMemcpyDeviceToHost));
+            cudaMemcpyDeviceToHost, current_cuda_stream())
+    );
 }
 
 void DeviceTexture2D::fill(int value)
@@ -43,5 +46,6 @@ void DeviceTexture2D::fill(int value)
     assert_cuda_ok(
         cudaMemset2DAsync(
             view().data(), view().pitch(), value,
-            size().width * get_pixel_type_size(pixel_type()), size().height));
+            size().width * get_pixel_type_size(pixel_type()), size().height, current_cuda_stream())
+    );
 }

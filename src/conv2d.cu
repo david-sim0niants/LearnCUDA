@@ -2,6 +2,7 @@
 
 #include "common_type_traits.h"
 #include "pixel_type.h"
+#include "private/cuda_stream.h"
 #include "vec.h"
 
 #include <cstdio>
@@ -79,11 +80,12 @@ void convolve_2d_per_elem_per_channels_per_kernel_size(const Conv2DParams& param
 
     using Vector = Vec<Elem, channels>;
 
-    cudaMemcpyToSymbol(::kernel, kernel, sizeof(float) * kernel_width * kernel_height);
+    cudaMemcpyToSymbolAsync(::kernel, kernel, sizeof(float) * kernel_width * kernel_height,
+            0, cudaMemcpyHostToDevice, current_cuda_stream());
 
     convolve_2d_kernel
         <Vector, BLOCK_DIM, kernel_width, kernel_height>
-        <<<grid_size, block_size>>>
+        <<<grid_size, block_size, 0, current_cuda_stream()>>>
         (params.width, params.height,
          params.input_pitch, params.output_pitch,
          static_cast<const Vector*>(input),

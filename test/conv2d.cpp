@@ -1,5 +1,5 @@
 #include "conv2d.h"
-#include "cuda_runtime_api.h"
+#include "cuda_stream.h"
 #include "host_texture2d.h"
 #include "device_texture2d.h"
 #include "prng.h"
@@ -95,6 +95,9 @@ TEST_P(Conv2DTest, BasicCheck)
 
     convolve_2d_host(params, texture.view().data(), kernel.data(), expected_texture.view().data());
 
+    CudaStream cuda_stream;
+    cuda_stream.set_as_current();
+
     DeviceTexture2D dev_texture {texture.size(), texture.pixel_type()};
     dev_texture.upload(texture.view());
 
@@ -102,13 +105,11 @@ TEST_P(Conv2DTest, BasicCheck)
     params.input_pitch = dev_texture.view().pitch();
     params.output_pitch = dev_actual_texture.view().pitch();
 
-    cudaDeviceSynchronize();
     convolve_2d(params, dev_texture.view().data(), kernel.data(), dev_actual_texture.view().data());
-    cudaDeviceSynchronize();
-
     HostTexture2D actual_texture (dev_actual_texture.size(), dev_actual_texture.pixel_type());
     dev_actual_texture.download(actual_texture.view());
-    cudaDeviceSynchronize();
+
+    cuda_stream.synchronize();
 
     switch (get_nr_channels(actual_texture.pixel_type())) {
     case 1: test_textures<1>(expected_texture, actual_texture); break;

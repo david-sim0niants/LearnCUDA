@@ -5,6 +5,7 @@ set(SRCS
     matmul.cu
     conv2d.cu
     conv2d.cpp
+    cuda_stream.cu
     host_texture2d.cpp
     device_texture2d.cu
     imgio.cpp
