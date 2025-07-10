@@ -9,6 +9,7 @@ set(SRCS
     host_texture2d.cpp
     device_texture2d.cu
     imgio.cpp
+    gaussian_blur.cpp
 )
 
 add_library(${TARGET_NAME} INTERFACE)

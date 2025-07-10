@@ -1,3 +1,4 @@
+#include "gaussian_blur.h"
 #include "conv2d.h"
 #include "imgio.h"
 #include "device_texture2d.h"
@@ -6,9 +7,23 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <string_view>
 
 #include <cuda_runtime.h>
 
+const std::map<std::string_view, Conv2DKernelSize> ksize_per_str = {
+    { "1x3", Conv2DKernelSize::K_1x3 },
+    { "3x1", Conv2DKernelSize::K_3x1 },
+    { "3x3", Conv2DKernelSize::K_3x3 },
+    { "3x5", Conv2DKernelSize::K_3x5 },
+    { "5x3", Conv2DKernelSize::K_5x3 },
+    { "5x5", Conv2DKernelSize::K_5x5 },
+    { "7x7", Conv2DKernelSize::K_7x7 },
+    { "9x9", Conv2DKernelSize::K_9x9 },
+};
+
+void apply_gaussian(Image& img, Conv2DKernelSize kernel_size);
 void usage(const char* prog_name);
 
 int main(int argc, char* argv[])
@@ -28,6 +43,17 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    Conv2DKernelSize kernel_size = Conv2DKernelSize::K_3x3;
+    if (argc > 3) {
+        std::string_view ksize_str = argv[3];
+        auto it = ksize_per_str.find(ksize_str);
+        if (it == ksize_per_str.end()) {
+            std::cerr << "Error: invalid kernel size: " << ksize_str << std::endl;
+            return EXIT_FAILURE;
+        }
+        kernel_size = it->second;
+    }
+
     const ImageFormat img_fmt = retrieve_image_format(in_f);
     auto in_img_opt = load_image(in_f);
     if (! in_img_opt) {
@@ -37,36 +63,10 @@ int main(int argc, char* argv[])
 
     Image& img = *in_img_opt;
 
-    std::cout << "Loaded input image: ("
+    std::cout << "Image size: ("
         << img.size().width << ", " << img.size().height << ')' << std::endl;
 
-    CudaStream cuda_stream;
-    cuda_stream.set_as_current();
-
-    DeviceTexture2D dev_in_img (img.size(), img.pixel_type());
-    dev_in_img.upload(img.view());
-
-    DeviceTexture2D dev_out_img (dev_in_img.size(), dev_in_img.pixel_type());
-
-    Conv2DParams params = {
-        .width = dev_in_img.size().width,
-        .height = dev_in_img.size().height,
-        .input_pitch = dev_in_img.view().pitch(),
-        .output_pitch = dev_out_img.view().pitch(),
-        .pixel_type = dev_out_img.pixel_type(),
-        .kernel_size = Conv2DKernelSize::K_3x3,
-    };
-
-    float kernel[3 * 3] = {
-        1.f/16, 2.f/16, 1.f/16,
-        2.f/16, 4.f/16, 2.f/16,
-        1.f/16, 2.f/16, 1.f/16,
-    };
-
-    convolve_2d(params, dev_in_img.view().data(), kernel, dev_out_img.view().data());
-
-    dev_out_img.download(img.view());
-    cuda_stream.synchronize();
+    apply_gaussian(img, kernel_size);
 
     std::ofstream out_f (out_fn, std::ios::binary);
     if (! out_f) {
@@ -85,5 +85,23 @@ int main(int argc, char* argv[])
 
 void usage(const char* prog_name)
 {
-    std::cerr << "Usage: " << prog_name << " <INPUT-FILE> <OUTPUT-FILE>\n";
+    std::cerr << "Usage: " << prog_name << " <INPUT-FILE> <OUTPUT-FILE> [KERNEL_SIZE = 3x3]\n";
+    std::cerr << "Supported kernel sizes: ";
+    for (auto [k, _] : ksize_per_str)
+        std::cerr << k << ' ';
+    std::cerr << std::endl;
+}
+
+void apply_gaussian(Image& img, Conv2DKernelSize kernel_size)
+{
+    CudaStream cuda_stream;
+    cuda_stream.set_as_current();
+
+    DeviceTexture2D dev_in (img.size(), img.pixel_type());
+    dev_in.upload(img.view());
+
+    DeviceTexture2D dev_out (img.size(), img.pixel_type());
+    gaussian_blur(dev_in, kernel_size, dev_out.view());
+    dev_out.download(img.view());
+    cuda_stream.synchronize();
 }

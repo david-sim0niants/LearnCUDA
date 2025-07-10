@@ -19,7 +19,10 @@ void CudaStream::synchronize()
 
 CudaStream::~CudaStream() noexcept
 {
-    cudaStreamDestroy(static_cast<cudaStream_t>(native()));
+    if (&current() == this)
+        default_stream().set_as_current();
+    if (this != &default_stream())
+        cudaStreamDestroy(static_cast<cudaStream_t>(native()));
 }
 
 CudaStream CudaStream::default_ (0);

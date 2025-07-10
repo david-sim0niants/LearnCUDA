@@ -71,7 +71,7 @@ __global__ void convolve_2d_kernel(
 
 template<typename Elem, unsigned int channels, int kernel_width, int kernel_height>
 void convolve_2d_per_elem_per_channels_per_kernel_size(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     constexpr int BLOCK_DIM = 16;
     dim3 block_size(BLOCK_DIM, BLOCK_DIM);
@@ -94,7 +94,7 @@ void convolve_2d_per_elem_per_channels_per_kernel_size(const Conv2DParams& param
 
 template<typename Elem, unsigned int channels>
 void convolve_2d_per_elem_per_channels(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (params.kernel_size) {
         using enum Conv2DKernelSize;
@@ -129,7 +129,7 @@ void convolve_2d_per_elem_per_channels(const Conv2DParams& params,
 
 template<typename Elem>
 void convolve_2d_per_elem(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (get_nr_channels(params.pixel_type)) {
     case 1:
@@ -148,7 +148,7 @@ void convolve_2d_per_elem(const Conv2DParams& params,
 }
 
 void convolve_2d(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (get_channel_type(params.pixel_type)) {
         using enum ChannelType;

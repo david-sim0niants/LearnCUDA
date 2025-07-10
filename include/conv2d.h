@@ -46,7 +46,7 @@ struct Conv2DParams {
 };
 
 void convolve_2d(const Conv2DParams& params,
-        const void* input, float* kernel, void* output);
+        const void* input, const float* kernel, void* output);
 
 void convolve_2d_host(const Conv2DParams& params,
-        const void* input, float* kernel, void* output);
+        const void* input, const float* kernel, void* output);

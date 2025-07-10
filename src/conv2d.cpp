@@ -7,7 +7,7 @@
 namespace {
 
 template<int K>
-inline float kernel_at(float* kernel, int i, int j)
+inline float kernel_at(const float* kernel, int i, int j)
 {
     return kernel[i * K + j];
 }
@@ -20,7 +20,7 @@ inline T& at(T* data, size_t pitch, size_t i, size_t j)
 
 template<typename Vec, int KW, int KH>
 inline Vec convolve_2d_cell(const Conv2DParams& params,
-        const Vec* input, float* kernel, size_t i, size_t j)
+        const Vec* input, const float* kernel, size_t i, size_t j)
 {
     ::Vec<float, Vec::size()> out {};
     for (unsigned k_i = 0; k_i < KH; ++k_i) {
@@ -45,7 +45,7 @@ inline Vec convolve_2d_cell(const Conv2DParams& params,
 
 template<typename Vec, int KW, int KH>
 void convolve_2d_impl(const Conv2DParams& params,
-        const Vec* input, float* kernel, Vec* output)
+        const Vec* input, const float* kernel, Vec* output)
 {
     #pragma omp parallel for
     for (size_t i = 0; i < params.height; ++i) {
@@ -58,7 +58,7 @@ void convolve_2d_impl(const Conv2DParams& params,
 
 template<typename Elem, unsigned channels, int KW, int KH>
 inline void convolve_2d_per_elem_per_channels_per_kernel_size(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     using Vector = Vec<Elem, channels>;
     convolve_2d_impl<Vector, KW, KH>
@@ -67,7 +67,7 @@ inline void convolve_2d_per_elem_per_channels_per_kernel_size(const Conv2DParams
 
 template<typename Elem, unsigned int channels>
 void convolve_2d_per_elem_per_channels(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (params.kernel_size) {
         using enum Conv2DKernelSize;
@@ -102,7 +102,7 @@ void convolve_2d_per_elem_per_channels(const Conv2DParams& params,
 
 template<typename Elem>
 void convolve_2d_per_elem(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (get_nr_channels(params.pixel_type)) {
     case 1:
@@ -121,7 +121,7 @@ void convolve_2d_per_elem(const Conv2DParams& params,
 }
 
 void convolve_2d_host(const Conv2DParams& params,
-        const void* input, float* kernel, void* output)
+        const void* input, const float* kernel, void* output)
 {
     switch (get_channel_type(params.pixel_type)) {
         using enum ChannelType;
